@@ -3,7 +3,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     devshell.url = "github:numtide/devshell";
-    satyxin.url = "github:SnO2WMaN/satyxin";
+
+    satysfi-upstream.url = "github:SnO2WMaN/SATySFi/sno2wman/nix-flake";
+    satyxin.url = "path:/home/sno2wman/src/ghq/github.com/SnO2WMaN/satyxin";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -15,6 +17,7 @@
     nixpkgs,
     flake-utils,
     devshell,
+    satysfi-upstream,
     satyxin,
     ...
   } @ inputs:
@@ -25,10 +28,14 @@
           overlays = [
             devshell.overlay
             satyxin.overlay
+            (final: prev: {
+              satysfi = satysfi-upstream.packages.${system}.satysfi;
+            })
           ];
         };
       in rec {
         packages = rec {
+          satysfi = pkgs.satysfi;
           satysfiDist = pkgs.satyxin.buildSatysfiDist {
             packages = [
               "uline"
@@ -41,13 +48,18 @@
             name = "main";
             src = ./src;
             entrypoint = "main.saty";
+            satysfi = pkgs.satysfi;
           };
         };
         defaultPackage = self.packages."${system}".main;
 
         devShell = pkgs.devshell.mkShell {
-          imports = [
-            (pkgs.devshell.importTOML ./devshell.toml)
+          packages = with pkgs; [
+            alejandra
+            dprint
+            satysfi
+            satysfi-formatter
+            satysfi-language-server
           ];
         };
       }
