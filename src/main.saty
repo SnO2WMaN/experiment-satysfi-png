@@ -1,5 +1,8 @@
 @require: stdjareport
-@require: uline/uline
+
+let-inline ctx \insert-image w path =
+    let img = load-image path in use-image-by-width img w
+in
 
 document(|
     title = { はじめての\SATySFi; };
@@ -8,11 +11,12 @@ document(|
     show-toc = false;
 |)'<
     +chapter{}<
-        +section{}<
-            +p{ 叫べ心の形を！！ }
+        +section{ 最新版なら，否定記号${\lnot P}が存在する }
+        +section{ JPG }<
+            +p{ \insert-image (5cm) (`peppers-rgb.jpg`); }
         >
-        +section{ uline }<
-            +p{ \uline{ 下線 }テスト }
+        +section{ PNG }<
+            +p{ \insert-image (5cm) (`it_is_good_to_know_what_you_like.png`); }
         >
     >
 >
