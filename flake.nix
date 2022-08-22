@@ -1,50 +1,52 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    devshell.url = "github:numtide/devshell";
 
     satysfi-upstream.url = "github:SnO2WMaN/SATySFi/sno2wman/nix-flake";
-    satyxin.url = "path:/home/sno2wman/src/ghq/github.com/SnO2WMaN/satyxin";
+    satyxin.url = "github:SnO2WMaN/satyxin";
+    satysfi-sno2wman.url = "github:SnO2WMaN/satysfi-sno2wman";
 
+    # dev
+    devshell.url = "github:numtide/devshell";
+    flake-utils.url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
       flake = false;
     };
+    satysfi-formatter.url = "github:SnO2WMaN/satysfi-formatter/nix-integrate";
+    satysfi-language-server.url = "github:SnO2WMaN/satysfi-language-server/nix-integrate";
   };
   outputs = {
     self,
     nixpkgs,
     flake-utils,
-    devshell,
-    satysfi-upstream,
-    satyxin,
     ...
   } @ inputs:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
+          overlays = with inputs; [
             devshell.overlay
-            satyxin.overlay
+            satyxin.overlays.default
+            satysfi-sno2wman.overlays.default
             (final: prev: {
               satysfi = satysfi-upstream.packages.${system}.satysfi;
+              satysfi-language-server = satysfi-language-server.packages.${system}.satysfi-language-server;
+              satysfi-formatter = satysfi-formatter.packages.${system}.satysfi-formatter;
+              satysfi-formatter-write-each = satysfi-formatter.packages.${system}.satysfi-formatter-write-each;
             })
           ];
         };
       in rec {
         packages = rec {
-          satysfi = pkgs.satysfi;
-          satysfiDist = pkgs.satyxin.buildSatysfiDist {
-            packages = [
-              "uline"
-              "bibyfi"
-              "fss"
+          satysfi-dist = pkgs.satyxin.buildSatysfiDist {
+            packages = with pkgs.satyxinPackages; [
+              sno2wman
             ];
           };
           main = pkgs.satyxin.buildDocument {
-            inherit satysfiDist;
+            satysfiDist = satysfi-dist;
             name = "main";
             src = ./src;
             entrypoint = "main.saty";
@@ -57,8 +59,9 @@
             alejandra
             dprint
             satysfi
-            satysfi-formatter
+            satysfi-formatter-write-each
             satysfi-language-server
+            treefmt
           ];
         };
       }

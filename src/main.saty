@@ -1,4 +1,5 @@
 @require: stdjareport
+@require: sno2wman/sno2wman
 
 let-inline ctx \insert-image w path =
     let img = load-image path in use-image-by-width img w
@@ -6,7 +7,7 @@ in
 
 document(|
     title = { はじめての\SATySFi; };
-    author = { SnO2WMaN };
+    author = { \SnO2WMaN; };
     show-title = false;
     show-toc = false;
 |)'<
