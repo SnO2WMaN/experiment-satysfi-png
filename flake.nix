@@ -48,7 +48,6 @@
             name = "main";
             src = ./src;
             entrypoint = "main.saty";
-            satysfi = pkgs.satysfi;
           };
         };
         defaultPackage = self.packages."${system}".main;
